@@ -1,15 +1,17 @@
-import consolidation.service.processorConsolidation;
+import consolidation.service.ProcessorConsolidation;
 import rules.service.ComplianceProcessor;
 import rules.model.InOperationRules;
-import suspicious.model.InOperations;
 import suspicious.service.SuspiciousAnalyzer;
 
 public class Main {
     public static void main(String[] args) {
         System.out.println("   EJECUCIÓN DE EVALUACIÓN TÉCNICA JAVA   ");
+        System.out.println("   EJECUCIÓN EJERCICIO 1   ");
+        ejercicio1Consolidacion();
 
-        //ejercicio1Consolidacion();
-        //ejercicio2Sospechosas();
+        System.out.println("   EJECUCIÓN EJERCICIO 2   ");
+        ejercicio2Sospechosas();
+        System.out.println("   EJECUCIÓN EJERCICIO 3   ");
         ejercicio3ReglasN();
     }
 
@@ -19,7 +21,7 @@ public class Main {
                 [ {"id": "M1", "accountId": "A1", "type": "DEBIT", "amount": 100, "currency": "MXN", "timestamp": "2026-07-13T10:00:00Z"}, {"id": "M2", "accountId": "A1", "type": "CREDIT", "amount": 250, "currency": "MXN", "timestamp": "2026-07-13T10:01:00Z"}, {"id": "M1", "accountId": "A1", "type": "DEBIT", "amount": 100, "currency": "MXN", "timestamp": "2026-07-13T10:02:00Z"}, {"id": "M3", "accountId": "A2", "type": "DEBIT", "amount": 50, "currency": "MXN", "timestamp": "2026-07-13T10:03:00Z"}, {"id": "M4", "accountId": "A2", "type": "CREDIT", "amount": -20, "currency": "MXN", "timestamp": "2026-07-13T10:04:00Z"} ]\s
                 """;
 
-        String outputJson = processorConsolidation.transactions(inputJson);
+        String outputJson = ProcessorConsolidation.evaluateConsolidation(inputJson);
         System.out.println(outputJson);
     }
 

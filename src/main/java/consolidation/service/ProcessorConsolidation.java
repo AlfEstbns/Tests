@@ -6,10 +6,10 @@ import consolidation.model.OutOperation;
 
 import java.util.*;
 
-public class processorConsolidation {
+public class ProcessorConsolidation {
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    public static String transactions (String inputJson) {
+    public static String evaluateConsolidation (String inputJson) {
         try {
             // Regla 2. Los eventos pueden venir desordenados, aqui se realiza un tratamiento para el json de entrada
             List<InOperation> movements = objectMapper.readValue(
