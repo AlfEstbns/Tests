@@ -45,8 +45,18 @@ graph TD
 
 ## Requisitos
 
-- Java JDK 17 o superior (usa text blocks).
-- Maven 3.8+.
+**Java JDK 21** (configurado en el `pom.xml`).
+- **Maven 3.8+**.
+
+> ⚠️ **Importante:** Maven usa el JDK definido en la variable `JAVA_HOME`, que puede
+> ser distinto al que muestra `java -version`. Antes de ejecutar, verifica:
+>
+> ```bash
+> mvn -version
+> ```
+>
+> La línea `Java version` debe indicar **21**. Si indica otra versión (por ejemplo 1.8),
+> consulta la sección *Solución de problemas*.
 
 ## Cómo ejecutar
 
@@ -64,7 +74,30 @@ graph TD
 ```bash
    mvn compile exec:java
 ```
+## Solución de problemas
 
+**Error `invalid target release: 21`**
+
+Maven está usando un JDK anterior a 21. Apunta `JAVA_HOME` al JDK 21 y vuelve a ejecutar.
+
+*Windows (PowerShell), solo para la sesión actual:*
+```powershell
+$env:JAVA_HOME = "C:\Program Files\Java\jdk-21"
+$env:Path = "$env:JAVA_HOME\bin;$env:Path"
+mvn -version
+```
+
+*Linux / macOS:*
+```bash
+export JAVA_HOME=/ruta/al/jdk-21
+export PATH="$JAVA_HOME/bin:$PATH"
+mvn -version
+```
+
+Ajusta la ruta a donde esté instalado tu JDK 21. Luego ejecuta:
+```bash
+mvn clean compile exec:java
+```
 3. Salida esperada: un bloque por ejercicio. Cada caso del ejercicio 3 indica
    el resultado y el valor esperado está anotado en el comentario del código.
 
@@ -118,4 +151,4 @@ Las pruebas son manuales, en `Main.java`:
 
 ## Declaración de Uso de Documentación e IA Generativa
 - **Herramientas de IA (Claude):** apoyo para contrastar interpretaciones del enunciado, la comprensión lectora de cada regla, sugerir casos de prueba, estructurar este documento, apoyo para revisar la lógica.
-- **Documentación Oficial:** Se consultó la documentación oficial de Java 17 (`java.time`) y Jackson para la correcta serialización de objetos a JSON.
+- **Documentación Oficial:** Se consultó la documentación oficial de Java 21 (`java.time`) y Jackson para la correcta serialización de objetos a JSON.
