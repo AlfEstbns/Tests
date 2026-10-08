@@ -1,11 +1,13 @@
 package consolidation.model;
 
 
+import java.math.BigDecimal;
+
 public class InOperation {
     private String id;
     private String accountId;
     private String type; // "DEBIT" or "CREDIT"
-    private double amount;
+    private BigDecimal amount;
     private String currency;
     private String timestamp;
 
@@ -13,7 +15,7 @@ public class InOperation {
     public InOperation() {
     }
 
-    public InOperation(String id, String accountId, String type, double amount, String currency, String timestamp) {
+    public InOperation(String id, String accountId, String type, BigDecimal amount, String currency, String timestamp) {
         this.id = id;
         this.accountId = accountId;
         this.type = type;
@@ -34,7 +36,7 @@ public class InOperation {
         return type;
     }
 
-    public double getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 

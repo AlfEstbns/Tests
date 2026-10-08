@@ -1,17 +1,18 @@
 package suspicious.model;
+import java.math.BigDecimal;
 import java.time.Instant;
 public class InOperations {
     private String id;
     private String accountId;
     private String type; // "DEBIT" o "CREDIT"
-    private double amount;
+    private BigDecimal amount;
     private String channel;
     private String deviceId;
     private Instant timestamp; // Usamos Instant para ISO 8601
 
     public InOperations() {
     }
-    public InOperations(String id, String accountId, String type, double amount,
+    public InOperations(String id, String accountId, String type, BigDecimal amount,
                             String channel, String deviceId, String timestamp) {
         this.id = id;
         this.accountId = accountId;
@@ -31,8 +32,8 @@ public class InOperations {
     public String getType() { return type; }
     public void setType(String type) { this.type = type; }
 
-    public double getAmount() { return amount; }
-    public void setAmount(double amount) { this.amount = amount; }
+    public BigDecimal getAmount() { return amount; }
+    public void setAmount(BigDecimal amount) { this.amount = amount; }
 
     public String getChannel() { return channel; }
     public void setChannel(String channel) { this.channel = channel; }

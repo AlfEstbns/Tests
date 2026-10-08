@@ -1,18 +1,21 @@
 # Solución a Evaluación Técnica - Java Backend
-Contiene en diferentes apartados la solución a 3 diferentes problemas, ademas de un solo MAIN.java, donde se agregan los casos de prueba.
 
-## Estructura del Proyecto
+Solución a tres ejercicios en Java. Los casos de prueba están en `Main.java`.
 
-El proyecto está organizado por paquetes independientes bajo una única arquitectura limpia:
+## Estructura del proyecto
 
 ```text
-src/
-├── main/java/
-│   ├── Main.java          # Punto de entrada orquestador
-│   ├── consolidation/     # Validar entrada, analizar json, entregar operaciones encontradas, de tiempo limite, monto, dispositivo
-│   ├── suspicious/        # Detección de patrones y riesgo en operaciones
-│   └── rules/             # Motor de reglas de cumplimiento, reestructura de un fragmento de código
-
+src/main/java/
+├── Main.java            # Punto de entrada: ejecuta los casos de los 3 ejercicios
+├── consolidation/       # Ejercicio 1: consolidación de movimientos por cuenta
+│   ├── model/           #   InOperation, OutOperation
+│   └── service/         #   ProcessorConsolidation
+├── suspicious/          # Ejercicio 2: detección de operaciones sospechosas
+│   ├── model/           #   InOperations, OutOperations
+│   └── service/         #   SuspiciousAnalyzer
+└── rules/               # Ejercicio 3: refactor de reglas de aprobación
+    ├── model/           #   InOperationRules
+    └── service/         #   ComplianceProcessor
 ```
 
 ---
@@ -32,7 +35,7 @@ graph TD
     end
 
     subgraph Procesamiento por Ejercicio - Los casos de prueba estan dentro de un solo MAIN
-        C -->|1. Evitar duplicación por ID<br>2. Ignorar monto <= 0<br>3. Ordenar <br>4. Resta-Suma  DEBIT/CREDIT| C1[Output: Balances por AccountId ASC]
+        C -->|1. Evitar duplicación por ID<br>2. Ignorar monto <= 0<br>3. Ordenar <br>4. Resta-Suma  DEBIT/CREDIT| C1[Output: Listado por AccountId ASC]
         D -->|Regla 1: Ventana 5 min DEBIT<br>Regla 2: Monto > 50,000<br>Regla 3: > 2 cuentas por Device| D1[Output: Lista operaciones]
         E -->|Validaciones Base<br>Aprobación Manager >= 100,000| E1[Output: Boolean Approved/Rejected]
     end
@@ -40,60 +43,79 @@ graph TD
 
 ---
 
-## Instrucciones de Ejecución
+## Requisitos
 
-### Requisitos previos
-- **Java JDK:** 17 o superior.
-- **Maven:** 3.8+ (o el wrapper `./mvnw` incluido).
+- Java JDK 17 o superior (usa text blocks).
+- Maven 3.8+.
 
-### Pasos para compilar y ejecutar
+## Cómo ejecutar
 
-1. **Clonar el repositorio:**
-   ```bash
+1. Clonar el repositorio:
+```bash
    git clone https://github.com/AlfEstbns/Tests.git
    cd Tests
-   ```
+```
 
-2. **Compilar y Ejecutar la Aplicación Principal:**
-   ```bash
-   mvn clean package
-   java -jar target/evaluacion-tecnica-1.0.0.jar
-   ```
-   *(O simplemente ejecutar la clase `Main.java` desde IntelliJ IDEA).*
+2. Ejecutar (elige una opción):
 
----
+   **Desde IntelliJ IDEA:** abrir el proyecto como Maven y ejecutar la clase `Main`.
 
-## Decisión y Justificación Técnica
+   **Desde terminal:**
+```bash
+   mvn compile exec:java
+```
 
-### 1. Nombres y Criterios de Diseño (Cumplimiento de Restricciones)
-Se diseñó la arquitectura evitando el uso de nombres genéricos o prohibidos (processTransactions, detectFraud, etc.), se definieron nombres para hacer más facil una curva de aprendizaje.
+3. Salida esperada: un bloque por ejercicio. Cada caso del ejercicio 3 indica
+   el resultado y el valor esperado está anotado en el comentario del código.
 
-ProcessorConsolidation / evaluateConsolidation: Evaluador de movimientos financieros que pueden venir duplicados.
+### Ejecutar otros casos del ejercicio 2
 
-SuspiciousAnalyzer / evaluateRisks: Responsable del análisis transaccional y reglas de fraude.
+En `Main.ejercicio2Sospechosas()` están los JSON de prueba (ejemplo del PDF,
+el mismo desordenado y casos límite). Descomenta la línea del caso que quieras ver.
 
-ComplianceProcessor / evaluateApproval: Evaluador de políticas de aprobación de crédito/operación.
+## Decisiones técnicas y supuestos
 
-### 2. Ejercicio 2: Detección de Operaciones Sospechosas
-- **Manejo del Tiempo:** Se uso `java.time.Instant` para el parseo exacto de marcas de tiempo en formato ISO 8601.
-- **Ordenamiento Autónomo:** Para garantizar que el orden de entrada de los movimientos no altere el resultado, se realiza un ordenamiento por fecha previo a la evaluación de la ventana de 5 minutos.
+### Ejercicio 1: consolidación
+- **"Primero" en duplicados:** se toma el primero según la posición en la lista
+  de entrada. El enunciado no define el criterio; la alternativa sería el más
+  antiguo por `timestamp`.
+- El `id` se registra antes de validar el monto: un reintento no se cuenta aunque
+  el original haya sido inválido.
+- Movimientos con `amount` nulo o <= 0, o con tipo distinto de DEBIT/CREDIT, se ignoran.
+- `BigDecimal` para evitar errores de precisión en montos.
+- Se asume una sola moneda por cuenta (`currency` no se valida).
+- JSON inválido lanza `IllegalArgumentException`; entrada nula o vacía devuelve `[]`.
 
-### 3. Ejercicio 3: Refactorización Clean Code
-Se refactorizó la lógica utilizando **validaciones por separado**. Esto mejora la legibilidad, reduce la complejidad.
+### Ejercicio 2: operaciones sospechosas
+- `java.time.Instant` para marcas de tiempo ISO 8601.
+- Los eventos se ordenan por `timestamp` antes de evaluar, así el orden de
+  entrada no cambia el resultado.
+- Ventana de 5 minutos **inclusiva**: un cuarto débito a exactamente 5:00 genera alerta.
+- Tras una alerta se saltan los eventos ya reportados para no repetir alertas
+  con ventanas traslapadas.
+- La regla de monto alto aplica a DEBIT y CREDIT; el monto exacto de 50,000 no alerta.
+- En dispositivo compartido se reportan cuentas únicas.
 
----
+### Ejercicio 3: refactor
+- Se reemplazó el anidamiento por condiciones que rechazan de forma temprana,
+  con un método por regla y constantes para el umbral y las monedas.
+- Se aceptan monedas en minúsculas (`mxn`); el código original usaba `equals`.
 
-## Cobertura de Evidencia de Pruebas (Pruebas Manuales / Escenarios en Main)
+### Nombres
+Se evitaron los nombres prohibidos por el enunciado. Clases y métodos:
+`ProcessorConsolidation.evaluateMovements`, `SuspiciousAnalyzer.evaluateRisks`,
+`ComplianceProcessor.evaluateApproval`.
 
-La validación de la lógica de negocio de los 3 ejercicios se realizó mediante casos de prueba implementados en la clase principal (`Main.java`), cubriendo los siguientes escenarios:
+## Pruebas
 
-- **Ejercicio 1:** Evitar duplicación de eventos por ID, filtrado de montos $\le 0$, ordenamiento y consolidación de balances por `accountId` en orden ascendente.
-- **Ejercicio 2:** Evaluación de la ventana deslizante de 5 minutos para débitos frecuentes, alerta por montos $> 50,000$ y detección de dispositivos compartidos entre múltiples cuentas.
-- **Ejercicio 3:** Evaluación de políticas de cumplimiento probando escenarios de éxito, rechazo por cuenta bloqueada, moneda no autorizada y flujo de aprobación por manager en montos $\ge 100,000$.
+Las pruebas son manuales, en `Main.java`:
+
+- **Ejercicio 1:** duplicado por `id`, monto negativo, orden por `accountId`.
+- **Ejercicio 2:** ejemplo del PDF, el mismo desordenado, bordes (5:00 y 5:01,
+  50,000 y 50,000.01, 2 y 3 cuentas por dispositivo), entradas vacías.
+- **Ejercicio 3:** 15 casos, incluidos el borde de 100,000 con y sin manager.
 ---
 
 ## Declaración de Uso de Documentación e IA Generativa
-
-De acuerdo con las mejores prácticas de transparencia y colaboración profesional:
-- **Herramientas de IA (Gemini):** Utilizada como asistente para la comprensión lectora de cada regla y estructuración de la documentación aqui presente, como creador de casos de prueba para los ejercicios.
+- **Herramientas de IA (Claude):** apoyo para contrastar interpretaciones del enunciado, la comprensión lectora de cada regla, sugerir casos de prueba, estructurar este documento, apoyo para revisar la lógica.
 - **Documentación Oficial:** Se consultó la documentación oficial de Java 17 (`java.time`) y Jackson para la correcta serialización de objetos a JSON.

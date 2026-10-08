@@ -1,34 +1,36 @@
 package consolidation.model;
 
+import java.math.BigDecimal;
+
 public class OutOperation {
     private String accountId;
-    private double totalCredits;
-    private double totalDebits;
-    private double balance;
+    private BigDecimal totalCredits;
+    private BigDecimal totalDebits;
+    private BigDecimal balance;
     private int validMovements;
 
     public OutOperation(String accountId) {
         this.accountId = accountId;
-        this.totalCredits = 0.0;
-        this.totalDebits = 0.0;
-        this.balance = 0.0;
+        this.totalCredits = BigDecimal.ZERO;
+        this.totalDebits = BigDecimal.ZERO;
+        this.balance = BigDecimal.ZERO;
         this.validMovements = 0;
     }
 
-    public void credit(double amount) {
-        this.totalCredits += amount;
+    public void credit(BigDecimal amount) {
+        this.totalCredits = this.totalCredits.add(amount);
         this.validMovements++;
         calculate();
     }
 
-    public void debit(double amount) {
-        this.totalDebits += amount;
+    public void debit(BigDecimal amount) {
+        this.totalDebits = this.totalDebits.add(amount);
         this.validMovements++;
         calculate();
     }
 
     private void calculate() {
-        this.balance = this.totalCredits - this.totalDebits;
+        this.balance = this.totalCredits.subtract(this.totalDebits);
     }
 
 
@@ -36,15 +38,15 @@ public class OutOperation {
         return accountId;
     }
 
-    public double getTotalCredits() {
+    public BigDecimal getTotalCredits() {
         return totalCredits;
     }
 
-    public double getTotalDebits() {
+    public BigDecimal getTotalDebits() {
         return totalDebits;
     }
 
-    public double getBalance() {
+    public BigDecimal getBalance() {
         return balance;
     }
 
